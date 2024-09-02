@@ -32,18 +32,19 @@ class EntryActivity : AppCompatActivity() {
             }"
         )
 
-        if (tvInput?.id == null) {
-            Log.d("PhilipsTest", "HW input not found")
-            return
-        }
+//        if (tvInput?.id == null) {
+//            Log.d("PhilipsTest", "HW input not found")
+//            return
+//        }
 
-        val tvInputService = MyTvInputService()
-        val session = tvInputService.onCreateSession(tvInput.id) as MySession
+
         val intent = Intent(this, MyTvInputService::class.java)
         startForegroundService(intent)
+        //val tvInputService = MyTvInputService()
+        //val session = tvInputService.onCreateSession("tvInput?.id")
 
-        val frequency = session.getTunedFrequency(this)
-        Log.d("PhilipsTest", "Tuned frequency: $frequency")
+        //val frequency = session.getTunedFrequency(this)
+        //Log.d("PhilipsTest", "Tuned frequency: $frequency")
     }
 }
 

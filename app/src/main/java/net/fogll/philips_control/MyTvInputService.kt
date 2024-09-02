@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.media.tv.TvInputService
 import android.os.Build
@@ -15,10 +16,17 @@ class MyTvInputService : TvInputService() {
     override fun onCreate() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
+
+        //val tvInputService = MyTvInputService()
+        val session = this.onCreateSession("tvInput?.id") as MySession
+
+        val frequency = session.getTunedFrequency(this)
+        Log.d("PhilipsTest", "Tuned frequency: $frequency")
     }
 
     override fun onCreateSession(inputId: String): Session {
         Log.d("PhilipsTest", "Creating session for input: $inputId")
+        Log.d("PhilipsTest", "Context $this")
         return MySession(this)
     }
 

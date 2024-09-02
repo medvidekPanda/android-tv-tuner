@@ -7,7 +7,7 @@ import android.net.Uri
 import android.util.Log
 import android.view.Surface
 
-class MySession(service: TvInputService) : TvInputService.Session(service) {
+class MySession(context: Context): TvInputService.Session(context) {
     override fun onSetSurface(surface: Surface?): Boolean {
         Log.d("PhilipsTest", "Surface set: $surface")
         return false
@@ -34,7 +34,10 @@ class MySession(service: TvInputService) : TvInputService.Session(service) {
     fun getTunedFrequency(context: Context): Int? {
         Log.d("PhilipsTest", "Getting tuned frequency")
 
-//        val tvInputManager = context.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
+        val tvInputManager = context.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
+
+        Log.d("PhilipsTest", "TV Input Manager: ${tvInputManager.tvInputList}")
+
 //        val tvInputInfo = tvInputManager.tvInputList.find { it.id == currentChannelUri?.toString() }
 //
 //        return tvInputInfo?.let {
