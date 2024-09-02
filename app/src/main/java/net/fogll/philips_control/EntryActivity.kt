@@ -13,6 +13,11 @@ class EntryActivity : AppCompatActivity() {
         Log.d("PhilipsTest", "------------onCreate-------------")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("PhilipsTest", "------------onStart-------------")
 
         val tvInputManager = getSystemService(Context.TV_INPUT_SERVICE) as? TvInputManager
         if (tvInputManager == null) {
@@ -23,23 +28,22 @@ class EntryActivity : AppCompatActivity() {
 
         Log.d(
             "PhilipsTest", "TV Input Manager: ${tvInput?.id} - ${tvInput?.serviceInfo} - ${
-                tvInput?.loadLabel(
-                    this
-                )
+                tvInput?.loadLabel(this)
             }"
         )
 
-//        if (tvInput?.id == null) {
-//            Log.d("PhilipsTest", "HW input not found")
-//            return;
-//        }
+        if (tvInput?.id == null) {
+            Log.d("PhilipsTest", "HW input not found")
+            return
+        }
 
         val tvInputService = MyTvInputService()
-        val session = tvInputService.onCreateSession("tvInput.id") as MySession
+        val session = tvInputService.onCreateSession(tvInput.id) as MySession
         val intent = Intent(this, MyTvInputService::class.java)
         startForegroundService(intent)
 
-        session.getTunedFrequency(this)
+        val frequency = session.getTunedFrequency(this)
+        Log.d("PhilipsTest", "Tuned frequency: $frequency")
     }
 }
 
