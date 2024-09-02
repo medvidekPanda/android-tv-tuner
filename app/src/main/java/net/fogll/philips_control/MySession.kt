@@ -37,15 +37,17 @@ class MySession(context: Context) : TvInputService.Session(context) {
         Log.d("PhilipsTest", "Getting tuned frequency")
 
         val tvInputManager = context.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
+        val tvInputInfo = tvInputManager.tvInputList.find { it.id == input }
 
-        Log.d("PhilipsTest", "TV Input Manager: ${tvInputManager.getTvInputInfo(input)}")
+        if (tvInputInfo != null) {
+            // Assuming there's a method or property in TvInputInfo to get the frequency
+            // This is a placeholder as the actual method/property might differ
+            val frequency = tvInputInfo.extras?.getInt("frequency")
+            Log.d("PhilipsTest", "Tuned frequency: $frequency")
+            return frequency
+        }
 
-        //val tvInputInfo = tvInputManager.tvInputList.find { it.id == currentChannelUri?.toString() }
-//
-//        return tvInputInfo?.let {
-//            // Assuming the frequency is stored in the description or metadata
-//            it.extras?.getInt("frequency")
-//        }
+        Log.d("PhilipsTest", "TV Input Info not found for input: $input")
         return null
     }
 }
