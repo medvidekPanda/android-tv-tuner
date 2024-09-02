@@ -28,77 +28,25 @@ class EntryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry)
 
+        //val intent = Intent(this, MyTvInputService::class.java)
+        //Log.d("TVInput", "Starting TV input service")
 
-//        if (ContextCompat.checkSelfPermission(
-//                this,
-//                permissionReadListings,
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            Log.d("TVInput", "Permission not granted")
-//            ActivityCompat.requestPermissions(
-//                this,
-//                arrayOf(permissionReadListings),
-//                1
-//            )
-//        } else {
-//            Log.d("TVInput", "Permission granted")
-//        }
-
-
-        val intent = Intent(this, MyTvInputService::class.java)
-        Log.d("TVInput", "Starting TV input service")
-
-        val channelUri = Uri.parse("content://net.fogll.tvtunertest/channel/1")
-        val tvInputService = MyTvInputService()
-        val session = tvInputService.onCreateSession("inputId")
+        //val channelUri = Uri.parse("content://net.fogll.tvtunertest/channel/1")
+        // val tvInputService = MyTvInputService()
+        //val session = tvInputService.onCreateSession("inputId")
         //session.onTune(channelUri)
-    }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.d("TVInput", "Permission granted")
+        val tvInputManager = this.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
+        val tvInput =
+            tvInputManager.tvInputList.find { it.id.contains("HW0") }
 
-            val tvInputManager = this.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
-            val tvInput =
-                tvInputManager.tvInputList.find { it.id.contains("HW0") }
-
-            Log.d(
-                "TVInput",
-                "TV Input Manager: ${tvInput?.id} - ${tvInput?.serviceInfo} - ${
-                    tvInput?.loadLabel(
-                        this
-                    )
-                }"
-            )
-
-            Log.d("TVInput", "State: ${tvInputManager.getInputState(tvInput?.id!!)}")
-            queryChannels()
-        } else {
-            Log.e("TVInput", "Permission denied")
-        }
-    }
-
-    @SuppressLint("Range")
-    private fun queryChannels() {
-        val uri = TvContract.Channels.CONTENT_URI
-        val cursor = this.contentResolver.query(uri, null, null, null, null)
-
-        Log.d("TVInput", "Uri: $uri")
-        Log.d("TVInput", "Cursor: ${cursor?.moveToFirst()}")
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                val channelId = cursor.getLong(cursor.getColumnIndex(TvContract.Channels._ID))
-                val channelName =
-                    cursor.getString(cursor.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME))
-                Log.d("ChannelList", "Channel: $channelName (ID: $channelId)")
-            }
-            cursor.close()
-        }
+        Log.d(
+            "TVInput",
+            "TV Input Manager: ${tvInput?.id} - ${tvInput?.serviceInfo} - ${
+                tvInput?.loadLabel(
+                    this
+                )
+            }"
+        )
     }
 }
