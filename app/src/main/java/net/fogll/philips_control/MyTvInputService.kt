@@ -31,9 +31,6 @@ class MyTvInputService : TvInputService() {
             .build()
 
         startForeground(NOTIFICATION_ID, notification)
-
-        // Your service logic here
-
         return START_STICKY
     }
 
