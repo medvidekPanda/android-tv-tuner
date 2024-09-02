@@ -14,7 +14,11 @@ class EntryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry)
 
-        val tvInputManager = this.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
+        val tvInputManager = getSystemService(Context.TV_INPUT_SERVICE) as? TvInputManager
+        if (tvInputManager == null) {
+            Log.e("PhilipsTest", "TvInputManager is null")
+            return
+        }
         val tvInput = tvInputManager.tvInputList.find { it.id.contains("HW0") }
 
         Log.d(
@@ -25,13 +29,13 @@ class EntryActivity : AppCompatActivity() {
             }"
         )
 
-        if (tvInput?.id == null) {
-            Log.d("PhilipsTest", "HW input not found")
-            return;
-        }
+//        if (tvInput?.id == null) {
+//            Log.d("PhilipsTest", "HW input not found")
+//            return;
+//        }
 
         val tvInputService = MyTvInputService()
-        val session = tvInputService.onCreateSession(tvInput.id) as MySession
+        val session = tvInputService.onCreateSession("tvInput.id") as MySession
         val intent = Intent(this, MyTvInputService::class.java)
         startForegroundService(intent)
 
