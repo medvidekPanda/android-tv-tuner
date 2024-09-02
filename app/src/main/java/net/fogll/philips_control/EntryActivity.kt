@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.media.tv.TvContract
@@ -28,20 +29,29 @@ class EntryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_entry)
 
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                permissionReadListings,
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d("TVInput", "Permission not granted")
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(permissionReadListings),
-                1
-            )
-        } else {
-            Log.d("TVInput", "Permission granted")
-        }
+//        if (ContextCompat.checkSelfPermission(
+//                this,
+//                permissionReadListings,
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            Log.d("TVInput", "Permission not granted")
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(permissionReadListings),
+//                1
+//            )
+//        } else {
+//            Log.d("TVInput", "Permission granted")
+//        }
+
+
+        val intent = Intent(this, MyTvInputService::class.java)
+        Log.d("TVInput", "Starting TV input service")
+
+        val channelUri = Uri.parse("content://net.fogll.tvtunertest/channel/1")
+        val tvInputService = MyTvInputService()
+        val session = tvInputService.onCreateSession("inputId")
+        //session.onTune(channelUri)
     }
 
     override fun onRequestPermissionsResult(
