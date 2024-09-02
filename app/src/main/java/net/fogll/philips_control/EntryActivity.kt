@@ -31,11 +31,11 @@ class EntryActivity : AppCompatActivity() {
         }
 
         val tvInputService = MyTvInputService()
-        val session = tvInputService.onCreateSession(tvInput.id)
+        val session = tvInputService.onCreateSession(tvInput.id) as MySession
         val intent = Intent(this, MyTvInputService::class.java)
         startForegroundService(intent)
-        //val channelUri = Uri.parse("content://net.fogll.philips_control/channel/1")
-        //session.onTune(channelUri)
+
+        session.getTunedFrequency(this)
     }
 }
 
