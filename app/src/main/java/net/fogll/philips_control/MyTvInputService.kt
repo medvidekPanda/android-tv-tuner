@@ -30,7 +30,7 @@ class MyTvInputService : TvInputService() {
         }
 
         val session = this.onCreateSession(tvInputId) as MySession
-        val frequency = session.getTunedFrequency(this)
+        val frequency = session.getTunedFrequency(this, tvInputId)
         Log.d("PhilipsTest", "Tuned frequency: $frequency")
     }
 
