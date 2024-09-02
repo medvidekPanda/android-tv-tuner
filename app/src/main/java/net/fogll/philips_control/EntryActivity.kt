@@ -28,14 +28,6 @@ class EntryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry)
 
-        //val intent = Intent(this, MyTvInputService::class.java)
-        //Log.d("TVInput", "Starting TV input service")
-
-        //val channelUri = Uri.parse("content://net.fogll.tvtunertest/channel/1")
-        // val tvInputService = MyTvInputService()
-        //val session = tvInputService.onCreateSession("inputId")
-        //session.onTune(channelUri)
-
         val tvInputManager = this.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
         val tvInput =
             tvInputManager.tvInputList.find { it.id.contains("HW0") }
@@ -48,5 +40,22 @@ class EntryActivity : AppCompatActivity() {
                 )
             }"
         )
+
+        if (tvInput?.id == null) {
+            Log.d("TVInput", "HW input not found")
+            return;
+        }
+
+        val intent = Intent(this, MyTvInputService::class.java)
+        Log.d("TVInput", "Starting TV input service")
+
+        val channelUri = Uri.parse("content://net.fogll.tvtunertest/channel/1")
+        val tvInputService = MyTvInputService()
+        val session = tvInputService.onCreateSession(tvInput.id)
+        //session.onTune(channelUri)
+
+
     }
 }
+
+
