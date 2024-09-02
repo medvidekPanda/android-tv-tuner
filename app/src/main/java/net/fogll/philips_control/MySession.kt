@@ -28,6 +28,16 @@ class MySession(context: Context) : TvInputService.Session(context) {
 
         if (frequency != null) {
             Log.d("PhilipsTest", "Ladění na frekvenci: $frequency")
+
+            val contentAvailable = checkForContentOnFrequency(frequency)
+            if (contentAvailable) {
+                Log.d("PhilipsTest", "Obsah nalezen na frekvenci: $frequency")
+                println("Obsah nalezen na frekvenci: $frequency") // Print to console
+            } else {
+                Log.d("PhilipsTest", "Žádný obsah na frekvenci: $frequency")
+                println("Žádný obsah na frekvenci: $frequency") // Print to console
+            }
+
             notifyVideoAvailable()
             return true
         } else {
@@ -39,5 +49,10 @@ class MySession(context: Context) : TvInputService.Session(context) {
 
     override fun onSetCaptionEnabled(enabled: Boolean) {
         Log.d("PhilipsTest", "Captions enabled: $enabled")
+    }
+
+    private fun checkForContentOnFrequency(frequency: Int): Boolean {
+        // Replace with actual logic to check for content
+        return frequency % 2 == 0 // Example: content available on even frequencies
     }
 }
