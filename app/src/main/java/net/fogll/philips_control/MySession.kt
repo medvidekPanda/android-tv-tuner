@@ -1,15 +1,18 @@
 package net.fogll.philips_control
 
+import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.content.Context
+import android.database.Cursor
+import android.media.tv.TvContract
 import android.media.tv.TvInputManager
 import android.media.tv.TvInputService
 import android.net.Uri
 import android.util.Log
 import android.view.Surface
 
-class MySession(context: Context) : TvInputService.Session(context) {
-    private var currentChannelUri: Uri? = null
 
+class MySession(private val context: Context) : TvInputService.Session(context) {
     override fun onSetSurface(surface: Surface?): Boolean {
         Log.d("PhilipsTest", "Surface set: $surface")
         return false
@@ -29,12 +32,12 @@ class MySession(context: Context) : TvInputService.Session(context) {
         if (frequency != null) {
             Log.d("PhilipsTest", "Ladění na frekvenci: $frequency")
 
-            val contentDetails = getContentDetailsOnFrequency(frequency)
-            if (contentDetails != null) {
-                Log.d("PhilipsTest", "Obsah nalezen na frekvenci: $frequency")
-                Log.d("PhilipsTest", "Detaily obsahu: $contentDetails")
+            val channels = getChannelsOnFrequency(frequency)
+            if (channels.isNotEmpty()) {
+                Log.d("PhilipsTest", "Kanály nalezeny na frekvenci: $frequency")
+                Log.d("PhilipsTest", "Detaily kanálů: $channels")
             } else {
-                Log.d("PhilipsTest", "Žádný obsah na frekvenci: $frequency")
+                Log.d("PhilipsTest", "Žádné kanály na frekvenci: $frequency")
             }
 
             notifyVideoAvailable()
@@ -50,12 +53,24 @@ class MySession(context: Context) : TvInputService.Session(context) {
         Log.d("PhilipsTest", "Captions enabled: $enabled")
     }
 
-    private fun getContentDetailsOnFrequency(frequency: Int): String? {
-        // Replace with actual logic to get content details
-        return if (frequency % 2 == 0) {
-            "Example Content Details for frequency $frequency"
-        } else {
-            null
+    @SuppressLint("Range")
+    private fun getChannelsOnFrequency(frequency: Int): List<String> {
+        val channels = mutableListOf<String>()
+        val contentResolver: ContentResolver = context.contentResolver
+        val uri: Uri = TvContract.buildChannelsUriForInput("input_id") // Replace "input_id" with actual input ID
+
+        val projection = arrayOf(TvContract.Channels.COLUMN_DISPLAY_NAME)
+        val selection = "${TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID} = ?"
+        val selectionArgs = arrayOf(frequency.toString())
+
+        val cursor: Cursor? = contentResolver.query(uri, projection, selection, selectionArgs, null)
+        cursor?.use {
+            while (it.moveToNext()) {
+                val channelName = it.getString(it.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME))
+                channels.add(channelName)
+            }
         }
+
+        return channels
     }
 }
