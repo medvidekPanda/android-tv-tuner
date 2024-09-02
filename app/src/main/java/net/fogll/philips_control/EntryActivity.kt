@@ -25,17 +25,18 @@ class EntryActivity : AppCompatActivity() {
             }"
         )
 
-        val intent = Intent(this, MyTvInputService::class.java)
-        startService(intent)
-
         if (tvInput?.id == null) {
             Log.d("TVInput", "HW input not found")
             return;
         }
 
+        val tvInputService = MyTvInputService()
+        val session = tvInputService.onCreateSession("id")
+        val intent = Intent(this, MyTvInputService::class.java)
+        startService(intent)
+
         //val channelUri = Uri.parse("content://net.fogll.philips_control/channel/1")
-        //val tvInputService = MyTvInputService()
-        //val session = tvInputService.onCreateSession(tvInput.id)
+
         //session.onTune(channelUri)
 
 
