@@ -6,14 +6,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.media.tv.TvContract
 import android.media.tv.TvInputManager
 import android.media.tv.TvInputService
-import android.os.Build
-import android.os.IBinder
 import android.util.Log
 
 
 class MyTvInputService : TvInputService() {
+    @SuppressLint("Range", "Recycle")
     override fun onCreate() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
@@ -30,8 +30,18 @@ class MyTvInputService : TvInputService() {
         }
 
         val session = this.onCreateSession(tvInputId) as MySession
-        val frequency = session.getTunedFrequency(this, tvInputId)
-        Log.d("PhilipsTest", "Tuned frequency: $frequency")
+
+        val resolver = contentResolver
+        val cursor = resolver.query(TvContract.Channels.CONTENT_URI, null, null, null, null)
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                val channelId = cursor.getLong(cursor.getColumnIndex(TvContract.Channels._ID))
+                val channelUri = TvContract.buildChannelUri(channelId)
+                Log.d("PhilipsTest", "Channel URI: $channelUri")
+                session.notifyChannelRetuned(channelUri)
+            } while (cursor.moveToNext())
+        }
     }
 
     override fun onCreateSession(inputId: String): Session {

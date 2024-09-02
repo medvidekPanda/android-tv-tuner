@@ -32,22 +32,4 @@ class MySession(context: Context) : TvInputService.Session(context) {
     override fun onSetCaptionEnabled(enabled: Boolean) {
         Log.d("PhilipsTest", "Captions enabled: $enabled")
     }
-
-    fun getTunedFrequency(context: Context, input: String): Int? {
-        Log.d("PhilipsTest", "Getting tuned frequency")
-
-        val tvInputManager = context.getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
-        val tvInputInfo = tvInputManager.tvInputList.find { it.id == input }
-
-        if (tvInputInfo != null) {
-            // Assuming there's a method or property in TvInputInfo to get the frequency
-            // This is a placeholder as the actual method/property might differ
-            val frequency = tvInputInfo.extras?.getInt("frequency")
-            Log.d("PhilipsTest", "Tuned frequency: $frequency")
-            return frequency
-        }
-
-        Log.d("PhilipsTest", "TV Input Info not found for input: $input")
-        return null
-    }
 }
