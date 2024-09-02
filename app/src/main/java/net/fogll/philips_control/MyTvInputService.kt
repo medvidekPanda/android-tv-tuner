@@ -6,6 +6,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.media.tv.TvInputManager
 import android.media.tv.TvInputService
 import android.os.Build
 import android.os.IBinder
@@ -17,9 +18,18 @@ class MyTvInputService : TvInputService() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
 
-        //val tvInputService = MyTvInputService()
-        val session = this.onCreateSession("tvInput?.id") as MySession
+        val tvInputId = getTvInputId()
 
+        Log.d(
+            "PhilipsTest", "TV Input Manager: $tvInputId"
+        )
+
+        if (tvInputId == null) {
+            Log.d("PhilipsTest", "HW input not found")
+            return
+        }
+
+        val session = this.onCreateSession(tvInputId) as MySession
         val frequency = session.getTunedFrequency(this)
         Log.d("PhilipsTest", "Tuned frequency: $frequency")
     }
@@ -33,10 +43,9 @@ class MyTvInputService : TvInputService() {
     @SuppressLint("ForegroundServiceType")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
-        val notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("MyTvInputService")
-            .setContentText("Service is running in the foreground")
-            .build()
+        val notification =
+            Notification.Builder(this, CHANNEL_ID).setContentTitle("MyTvInputService")
+                .setContentText("Service is running in the foreground").build()
 
         startForeground(NOTIFICATION_ID, notification)
         return START_STICKY
@@ -44,12 +53,17 @@ class MyTvInputService : TvInputService() {
 
     private fun createNotificationChannel() {
         val serviceChannel = NotificationChannel(
-            CHANNEL_ID,
-            "Foreground Service Channel",
-            NotificationManager.IMPORTANCE_DEFAULT
+            CHANNEL_ID, "Foreground Service Channel", NotificationManager.IMPORTANCE_DEFAULT
         )
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(serviceChannel)
+    }
+
+    private fun getTvInputId(): String? {
+        val tvInputManager = getSystemService(Context.TV_INPUT_SERVICE) as? TvInputManager
+        val tvInput = tvInputManager?.tvInputList?.find { it.id.contains("HW0") }
+
+        return tvInput?.id
     }
 
     fun onReleaseSession(session: Session) {

@@ -19,32 +19,8 @@ class EntryActivity : AppCompatActivity() {
         super.onStart()
         Log.d("PhilipsTest", "------------onStart-------------")
 
-        val tvInputManager = getSystemService(Context.TV_INPUT_SERVICE) as? TvInputManager
-        if (tvInputManager == null) {
-            Log.e("PhilipsTest", "TvInputManager is null")
-            return
-        }
-        val tvInput = tvInputManager.tvInputList.find { it.id.contains("HW0") }
-
-        Log.d(
-            "PhilipsTest", "TV Input Manager: ${tvInput?.id} - ${tvInput?.serviceInfo} - ${
-                tvInput?.loadLabel(this)
-            }"
-        )
-
-//        if (tvInput?.id == null) {
-//            Log.d("PhilipsTest", "HW input not found")
-//            return
-//        }
-
-
         val intent = Intent(this, MyTvInputService::class.java)
         startForegroundService(intent)
-        //val tvInputService = MyTvInputService()
-        //val session = tvInputService.onCreateSession("tvInput?.id")
-
-        //val frequency = session.getTunedFrequency(this)
-        //Log.d("PhilipsTest", "Tuned frequency: $frequency")
     }
 }
 
