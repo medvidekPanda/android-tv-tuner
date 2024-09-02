@@ -19,6 +19,10 @@ class MyTvInputService : TvInputService() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
 
+        val packageName = this.packageName
+        val frequencyUri = Uri.parse("content://$packageName/frequency?frequency=274000")
+        Log.d("PhilipsTest", "Frequency URI: $frequencyUri")
+
         val tvInputId = getTvInputId()
 
         Log.d(
@@ -31,8 +35,6 @@ class MyTvInputService : TvInputService() {
         }
 
         val session = this.onCreateSession(tvInputId) as MySession
-
-        val frequencyUri = Uri.parse("content://com.example.tvinput/frequency?frequency=123456")
         session.onTune(frequencyUri)
     }
 
