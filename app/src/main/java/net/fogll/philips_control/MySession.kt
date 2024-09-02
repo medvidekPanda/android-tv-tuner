@@ -57,7 +57,7 @@ class MySession(private val context: Context) : TvInputService.Session(context) 
     private fun getChannelsOnFrequency(frequency: Int): List<String> {
         val channels = mutableListOf<String>()
         val contentResolver: ContentResolver = context.contentResolver
-        val uri: Uri = TvContract.Channels.CONTENT_URI // Use the correct URI
+        val uri: Uri = TvContract.buildChannelsUriForInput("net.fogll.philips_control/.MyTvInputService") // Use the correct URI
 
         val projection = arrayOf(TvContract.Channels.COLUMN_DISPLAY_NAME)
         val selection = "${TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID} = ?" // Ensure this column is correct
