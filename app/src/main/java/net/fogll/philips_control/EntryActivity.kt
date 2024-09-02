@@ -29,13 +29,34 @@ class EntryActivity : AppCompatActivity() {
                 arrayOf("android.permission.READ_TV_LISTINGS"),
                 permissionRequestReadTvListings
             )
+        } else {
+            startService()
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d("PhilipsTest", "------------onStart-------------")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
+        Log.d("PhilipsTest", "------------onRequestPermissionsResult------------- $requestCode")
+        when (requestCode) {
+            permissionRequestReadTvListings -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    startService()
+                } else {
+                    Log.d("PhilipsTest", "Permission denied. Exiting")
+                    finish()
+                }
+                return
+            }
+        }
+    }
+
+    private fun startService() {
+        Log.d("PhilipsTest", "Permission granted. Start service")
         val intent = Intent(this, MyTvInputService::class.java)
         startForegroundService(intent)
     }
