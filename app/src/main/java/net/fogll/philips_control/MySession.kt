@@ -29,13 +29,12 @@ class MySession(context: Context) : TvInputService.Session(context) {
         if (frequency != null) {
             Log.d("PhilipsTest", "Ladění na frekvenci: $frequency")
 
-            val contentAvailable = checkForContentOnFrequency(frequency)
-            if (contentAvailable) {
+            val contentDetails = getContentDetailsOnFrequency(frequency)
+            if (contentDetails != null) {
                 Log.d("PhilipsTest", "Obsah nalezen na frekvenci: $frequency")
-                println("Obsah nalezen na frekvenci: $frequency") // Print to console
+                Log.d("PhilipsTest", "Detaily obsahu: $contentDetails")
             } else {
                 Log.d("PhilipsTest", "Žádný obsah na frekvenci: $frequency")
-                println("Žádný obsah na frekvenci: $frequency") // Print to console
             }
 
             notifyVideoAvailable()
@@ -51,8 +50,12 @@ class MySession(context: Context) : TvInputService.Session(context) {
         Log.d("PhilipsTest", "Captions enabled: $enabled")
     }
 
-    private fun checkForContentOnFrequency(frequency: Int): Boolean {
-        // Replace with actual logic to check for content
-        return frequency % 2 == 0 // Example: content available on even frequencies
+    private fun getContentDetailsOnFrequency(frequency: Int): String? {
+        // Replace with actual logic to get content details
+        return if (frequency % 2 == 0) {
+            "Example Content Details for frequency $frequency"
+        } else {
+            null
+        }
     }
 }
