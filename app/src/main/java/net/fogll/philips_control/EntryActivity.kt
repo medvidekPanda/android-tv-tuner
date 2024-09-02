@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class EntryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("TVInput", "------------onCreate-------------")
+        Log.d("PhilipsTest", "------------onCreate-------------")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry)
 
@@ -18,7 +18,7 @@ class EntryActivity : AppCompatActivity() {
         val tvInput = tvInputManager.tvInputList.find { it.id.contains("HW0") }
 
         Log.d(
-            "TVInput", "TV Input Manager: ${tvInput?.id} - ${tvInput?.serviceInfo} - ${
+            "PhilipsTest", "TV Input Manager: ${tvInput?.id} - ${tvInput?.serviceInfo} - ${
                 tvInput?.loadLabel(
                     this
                 )
@@ -26,7 +26,7 @@ class EntryActivity : AppCompatActivity() {
         )
 
         if (tvInput?.id == null) {
-            Log.d("TVInput", "HW input not found")
+            Log.d("PhilipsTest", "HW input not found")
             //return;
         }
 

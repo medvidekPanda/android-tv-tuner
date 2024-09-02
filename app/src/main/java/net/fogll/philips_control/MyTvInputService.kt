@@ -14,11 +14,11 @@ import android.util.Log
 class MyTvInputService : TvInputService() {
     override fun onCreate() {
         super.onCreate()
-        Log.d("TVInput", "MyTvInputService created")
+        Log.d("PhilipsTest", "MyTvInputService created")
     }
 
     override fun onCreateSession(inputId: String): Session {
-        Log.d("TVInput", "Creating session for input: $inputId")
+        Log.d("PhilipsTest", "Creating session for input: $inputId")
         return MySession(this)
     }
 
@@ -48,7 +48,7 @@ class MyTvInputService : TvInputService() {
     }
 
     fun onReleaseSession(session: Session) {
-        Log.d("TVInput", "Releasing session")
+        Log.d("PhilipsTest", "Releasing session")
     }
 
     companion object {
