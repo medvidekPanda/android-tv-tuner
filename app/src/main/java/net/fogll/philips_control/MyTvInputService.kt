@@ -9,6 +9,7 @@ import android.content.Intent
 import android.media.tv.TvContract
 import android.media.tv.TvInputManager
 import android.media.tv.TvInputService
+import android.net.Uri
 import android.util.Log
 
 
@@ -31,22 +32,12 @@ class MyTvInputService : TvInputService() {
 
         val session = this.onCreateSession(tvInputId) as MySession
 
-        val resolver = contentResolver
-        val cursor = resolver.query(TvContract.Channels.CONTENT_URI, null, null, null, null)
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                val channelId = cursor.getLong(cursor.getColumnIndex(TvContract.Channels._ID))
-                val channelUri = TvContract.buildChannelUri(channelId)
-                Log.d("PhilipsTest", "Channel URI: $channelUri")
-                session.notifyChannelRetuned(channelUri)
-            } while (cursor.moveToNext())
-        }
+        val frequencyUri = Uri.parse("content://com.example.tvinput/frequency?frequency=123456")
+        session.onTune(frequencyUri)
     }
 
     override fun onCreateSession(inputId: String): Session {
         Log.d("PhilipsTest", "Creating session for input: $inputId")
-        Log.d("PhilipsTest", "Context $this")
         return MySession(this)
     }
 

@@ -23,10 +23,18 @@ class MySession(context: Context) : TvInputService.Session(context) {
         Log.d("PhilipsTest", "Stream volume set to: $volume")
     }
 
-    override fun onTune(channelUri: Uri?): Boolean {
-        Log.d("PhilipsTest", "Tuning to channel: $channelUri")
-        notifyVideoAvailable()
-        return false
+    override fun onTune(channelUri: Uri): Boolean {
+        val frequency = channelUri.getQueryParameter("frequency")?.toIntOrNull()
+
+        if (frequency != null) {
+            Log.d("PhilipsTest", "Ladění na frekvenci: $frequency")
+            notifyVideoAvailable()
+            return true
+        } else {
+            Log.d("PhilipsTest", "Neplatná frekvence")
+            notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_UNKNOWN)
+            return false
+        }
     }
 
     override fun onSetCaptionEnabled(enabled: Boolean) {
