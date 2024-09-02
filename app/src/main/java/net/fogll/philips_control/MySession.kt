@@ -32,7 +32,7 @@ class MySession(private val context: Context) : TvInputService.Session(context) 
         if (frequency != null) {
             Log.d("PhilipsTest", "Ladění na frekvenci: $frequency")
 
-            val channels = getChannelsOnFrequency(frequency, channelUri)
+            val channels = getChannelsOnFrequency(frequency)
             if (channels.isNotEmpty()) {
                 Log.d("PhilipsTest", "Kanály nalezeny na frekvenci: $frequency")
                 Log.d("PhilipsTest", "Detaily kanálů: $channels")
@@ -54,22 +54,19 @@ class MySession(private val context: Context) : TvInputService.Session(context) 
     }
 
     @SuppressLint("Range")
-    private fun getChannelsOnFrequency(frequency: Int, channelUri: Uri): List<String> {
+    private fun getChannelsOnFrequency(frequency: Int): List<String> {
         val channels = mutableListOf<String>()
-//val contentResolver: ContentResolver = context.contentResolver
-        //      val uri: Uri = TvContract.Channels.CONTENT_URI // Use the correct URI
+        val contentResolver: ContentResolver = context.contentResolver
+        val uri: Uri = TvContract.Channels.CONTENT_URI // Use the correct URI
 
         val projection = arrayOf(TvContract.Channels.COLUMN_DISPLAY_NAME)
-        val selection =
-            "${TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID} = ?" // Ensure this column is correct
+        val selection = "${TvContract.Channels.COLUMN_TRANSPORT_STREAM_ID} = ?" // Ensure this column is correct
         val selectionArgs = arrayOf(frequency.toString())
 
-        val cursor: Cursor? =
-            context.contentResolver.query(channelUri, projection, selection, selectionArgs, null)
+        val cursor: Cursor? = contentResolver.query(uri, projection, selection, selectionArgs, null)
         cursor?.use {
             while (it.moveToNext()) {
-                val channelName =
-                    it.getString(it.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME))
+                val channelName = it.getString(it.getColumnIndex(TvContract.Channels.COLUMN_DISPLAY_NAME))
                 channels.add(channelName)
             }
         }
