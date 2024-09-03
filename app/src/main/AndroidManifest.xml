@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.READ_TV_LISTINGS"/>
-    <uses-permission android:name="android.permission.ACCESS_ALL_EPG_DATA"/>
+    <uses-permission android:name="android.permission.READ_TV_LISTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_ALL_EPG_DATA" />
 
     <uses-feature
         android:name="android.software.leanback"

@@ -19,8 +19,10 @@ class MyTvInputService : TvInputService() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
 
-        val packageName = this.packageName
-        val frequencyUri = Uri.parse("content://$packageName/frequency?frequency=274000")
+        //val packageName = this.packageName
+        //val frequencyUri = Uri.parse("content://$packageName/channel?frequency=274000000")
+        val frequencyUri =
+            Uri.parse("content://android.media.tv/channel?frequency=274000000")
         Log.d("PhilipsTest", "Frequency URI: $frequencyUri")
 
         val tvInputId = getTvInputId()
@@ -35,7 +37,13 @@ class MyTvInputService : TvInputService() {
         }
 
         val session = this.onCreateSession(tvInputId) as MySession
-        session.onTune(frequencyUri)
+        val tuned = session.onTune(frequencyUri)
+
+        if (tuned) {
+            //fetchChannels(274000000)
+        } else {
+            Log.d("PhilipsTest", "Failed to tune to frequency")
+        }
     }
 
     override fun onCreateSession(inputId: String): Session {
@@ -64,8 +72,7 @@ class MyTvInputService : TvInputService() {
 
     private fun getTvInputId(): String? {
         val tvInputManager = getSystemService(Context.TV_INPUT_SERVICE) as? TvInputManager
-        val tvInput = tvInputManager?.tvInputList?.find { it.id.contains("HW0") }
-
+        val tvInput = tvInputManager?.tvInputList?.find { it.id.contains("HW9") }
         return tvInput?.id
     }
 
@@ -76,5 +83,29 @@ class MyTvInputService : TvInputService() {
     companion object {
         const val CHANNEL_ID = "MyTvInputServiceChannel"
         const val NOTIFICATION_ID = 1
+    }
+
+    @SuppressLint("Recycle", "Range")
+    private fun fetchChannels(frequency: Int) {
+        val channelsUri: Uri = TvContract.Channels.CONTENT_URI
+        val projection = arrayOf(
+            TvContract.Channels.COLUMN_DISPLAY_NAME,
+            TvContract.Channels.COLUMN_ORIGINAL_NETWORK_ID,
+            TvContract.Channels.COLUMN_SERVICE_ID
+        )
+
+        Log.d("PhilipsTest", "channelsUri: $channelsUri")
+
+        val cursor = this.contentResolver.query(channelsUri, null, null, null, null)
+
+        // Log cursor count
+        Log.d("PhilipsTest", "Cursor count: ${cursor?.count ?: 0}")
+
+        cursor?.use {
+            while (it.moveToFirst()) {
+                //val channelName = it.getString(it.getColumnIndex(TvContract.Channels.DISPLAY_NAME))
+                Log.d("PhilipsTest", "Channel: $it")
+            }
+        }
     }
 }
