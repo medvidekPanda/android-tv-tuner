@@ -7,12 +7,12 @@
     <SurfaceView
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
-        android:layout_height="452dp" />
+        android:layout_height="297dp" />
 
     <TextView
         android:id="@+id/channel_list"
         android:layout_width="match_parent"
-        android:layout_height="89dp"
+        android:layout_height="232dp"
         android:text="Channel list" />
 
 </LinearLayout>

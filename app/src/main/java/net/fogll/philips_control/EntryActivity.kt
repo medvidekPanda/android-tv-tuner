@@ -28,23 +28,6 @@ import androidx.tvprovider.media.tv.TvContractCompat
 
 class EntryActivity : AppCompatActivity() {
     private var myTvInputService: MyTvInputService? = null
-    private var serviceBound = false
-
-    private val boundServiceConnection by lazy {
-        object : ServiceConnection {
-            override fun onServiceConnected(className: ComponentName, service: IBinder) {
-                val binder: MyTvInputService.AudioLoopServiceBinder = service as AudioLoopBoundService.AudioLoopServiceBinder
-                audioLoopBoundService = binder.getService()
-                viewModel.isAudioServiceBound = true
-            }
-
-            override fun onServiceDisconnected(arg0: ComponentName) {
-                audioLoopBoundService?.runAction(ServiceAction.STOP_ACTION)
-                audioLoopBoundService = null
-                viewModel.isAudioServiceBound = false
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("PhilipsTest", "------------onCreate-------------")
@@ -54,16 +37,24 @@ class EntryActivity : AppCompatActivity() {
 //        addDvbChannel(
 //            "CT 2",
 //            274000000,
-//            102,
-//            "com.mediatek.tvinput/.dtv.TunerInputService/HW0", 1,
+//            101,
+//            "com.mediatek.tvinput/.dtv.TunerInputService/HW0",
+//            1,
 //            this
 //        )
 
-
         //addDvbChannel2("CT 1")
-
-        addSurfaceView()
+        //addSurfaceView()
         listChannels(this)
+
+        val channelId = ContentUris.parseId("content://android.media.tv/channel/24".toUri())
+
+        Log.d("PhilipsTest", "Channel ID: $channelId")
+
+        val channelUri = TvContract.buildChannelUri(channelId)
+        val intent = Intent(Intent.ACTION_VIEW, channelUri)
+        intent.setPackage("com.android.tv")
+        startActivity(intent)
     }
 
 
@@ -75,7 +66,7 @@ class EntryActivity : AppCompatActivity() {
         channelId: Long,
         context: Context
     ) {
-        //val channelUri = TvContract.buildChannelUri(channelId)
+
 
         val values = ContentValues().apply {
             put(TvContract.Channels.COLUMN_INPUT_ID, inputId)
@@ -95,6 +86,8 @@ class EntryActivity : AppCompatActivity() {
         val newChannelUri = contentResolver.insert(TvContract.Channels.CONTENT_URI, values)
         Log.d("PhilipsTest", "Channel added: $newChannelUri")
 
+
+        //val channelUri = TvContract.buildChannelUri(channelId)
 //        // Use channelUri to update the newly added channel
 //        val updateValues = ContentValues().apply {
 //            put(TvContract.Channels.COLUMN_DISPLAY_NUMBER, "100")
@@ -186,30 +179,9 @@ class EntryActivity : AppCompatActivity() {
 
     private fun startService(surface: Surface) {
         Log.d("PhilipsTest", "Permission granted. Start service")
-        val intent = Intent(this, MyTvInputService::class.java)
-        intent.putExtra("surface", surface)
+        //val intent = Intent(this, MyTvInputService::class.java)
+        //intent.putExtra("surface", surface)
         // startService(intent)
-        this.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
-    }
-
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            myTvInputService = service as? MyTvInputService.LocalBinder.getService()
-            serviceBound = true
-            Log.d("PhilipsTest", "Service connected")
-
-            // Now that the service is connected, call onTune
-            val channelUri =
-                TvContract.buildChannelUriForPassthroughInput("com.mediatek.tvinput/.dtv.TunerInputService/HW0")
-            Log.d("PhilipsTest", "channelUri startService: $channelUri")
-            myTvInputService?.getSession()?.onTune(channelUri)
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            serviceBound = false
-            myTvInputService = null
-            Log.d("PhilipsTest", "Service disconnected")
-        }
     }
 
     private fun findInputId(context: Context): String? {
