@@ -9,48 +9,28 @@ import android.content.Intent
 import android.media.tv.TvInputManager
 import android.media.tv.TvInputService
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
+import android.os.Binder
+import android.os.IBinder
 import android.util.Log
 import android.view.Surface
-import androidx.core.net.toUri
 
 class MyTvInputService : TvInputService() {
     private var session: MySession? = null
     private var playbackSurface: Surface? = null
 
-    @SuppressLint("Range", "Recycle")
+    inner class LocalBinder : Binder() {
+        fun getService(): MyTvInputService = this@MyTvInputService
+    }
+
     override fun onCreate() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
-
         val tvInputId = getTvInputId()
         if (tvInputId == null) {
             Log.d("PhilipsTest", "HW input not found")
         }
-
-        onCreateSession("tvInputId")
+        onCreateSession(tvInputId ?: "defaultInputId")
         Log.d("PhilipsTest", "Session created $session")
-        session?.onTune("content://android.media.tv/channel/2956".toUri())
-
-        val contentResolver = contentResolver
-        val channelUri = Uri.parse("content://android.media.tv/channel/2956")
-
-        val cursor = contentResolver.query(
-            channelUri,
-            null, // Projection (retrieve all columns)
-            null, // Selection
-            null, // Selection arguments
-            null  // Sort order
-        )
-
-        if (cursor != null && cursor.moveToFirst()) {
-            Log.d("PhilipsTest", "Channel found for URI: $channelUri")
-        } else {
-            Log.e("PhilipsTest", "No channel found for URI: $channelUri")
-        }
-
-        cursor?.close()
     }
 
     override fun onCreateSession(inputId: String): Session {
@@ -63,9 +43,10 @@ class MyTvInputService : TvInputService() {
     @SuppressLint("ForegroundServiceType")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
-        val notification =
-            Notification.Builder(this, CHANNEL_ID).setContentTitle("MyTvInputService")
-                .setContentText("Service is running in the foreground").build()
+        val notification = Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle("MyTvInputService")
+            .setContentText("Service is running in the foreground")
+            .build()
 
         startForeground(NOTIFICATION_ID, notification)
 
@@ -92,7 +73,7 @@ class MyTvInputService : TvInputService() {
     fun onReleaseSession(session: Session) {
         Log.d("PhilipsTest", "Releasing session")
         if (this.session === session) {
-            this.session?.onRelease() // Ensure session is released
+            this.session?.onRelease()
             this.session = null
         }
     }
@@ -106,9 +87,5 @@ class MyTvInputService : TvInputService() {
         var instance: MyTvInputService? = null
         const val CHANNEL_ID = "MyTvInputServiceChannel"
         const val NOTIFICATION_ID = 1
-    }
-
-    fun setTimeout(delay: Long, task: () -> Unit) {
-        Handler(Looper.getMainLooper()).postDelayed(task, delay)
     }
 }

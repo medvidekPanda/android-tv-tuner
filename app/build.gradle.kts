@@ -43,5 +43,6 @@ dependencies {
     implementation(libs.castFramework)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.common)
-
+    implementation(libs.androidx.tvprovider)
+    implementation(libs.video)
 }

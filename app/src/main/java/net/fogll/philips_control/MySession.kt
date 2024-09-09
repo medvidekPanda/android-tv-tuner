@@ -1,6 +1,7 @@
 package net.fogll.philips_control
 
 import android.content.Context
+import android.media.tv.TvContract
 import android.net.Uri
 import android.util.Log
 import android.view.Surface
@@ -21,18 +22,30 @@ class MySession(private val context: Context) : Session(context) {
     override fun onTune(channelUri: Uri?): Boolean {
         Log.d("PhilipsTest", "Tuning to: $channelUri")
 
+        if (channelUri == null) {
+            Log.e("PhilipsTest", "Channel URI is null")
+            return false
+        }
+
         // 1. Create a DataSource.Factory
-        val httpDataSourceFactory: HttpDataSource.Factory = DefaultHttpDataSource.Factory()
-            .setUserAgent("YourUserAgent")
+        //val httpDataSourceFactory: HttpDataSource.Factory = DefaultHttpDataSource.Factory()
+        //    .setUserAgent("YourUserAgent")
 
         // 2. Build the DefaultDataSourceFactory
-        val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
+        //val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
 
         // 3. Create a MediaSource
-        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(MediaItem.fromUri("http://10.40.196.82:8080/bysid/402"))
+//        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+//            .createMediaSource(MediaItem.fromUri("http://10.40.196.82:8080/bysid/402"))
 
-        // 4. Create and configure ExoPlayer
+        // 1. Create a DataSource.Factory
+        val contentDataSourceFactory = DefaultDataSource.Factory(context)
+
+        // 2. Create a MediaSource
+        val mediaSource = ProgressiveMediaSource.Factory(contentDataSourceFactory)
+            .createMediaSource(MediaItem.fromUri(channelUri))
+
+        // 3. Create and configure ExoPlayer
         player = ExoPlayer.Builder(context).build()
         player?.setMediaSource(mediaSource)
 
