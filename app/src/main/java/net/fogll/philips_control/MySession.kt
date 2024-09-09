@@ -1,43 +1,87 @@
 package net.fogll.philips_control
 
 import android.content.Context
-import android.media.tv.TvInputService
+import android.media.tv.TvInputManager
 import android.net.Uri
 import android.util.Log
 import android.view.Surface
+import android.media.tv.TvInputService.Session
+import androidx.annotation.OptIn
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.datasource.DefaultDataSourceFactory
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.HttpDataSource
+import java.net.InetAddress
 
 
-class MySession(private val context: Context) : TvInputService.Session(context) {
+class MySession(private val context: Context) : Session(context) {
+    private var player: ExoPlayer? = null
+
+    @OptIn(UnstableApi::class)
+    override fun onTune(channelUri: Uri?): Boolean {
+        Log.d("PhilipsTest", "Tuning to: $channelUri")
+
+        val host = isHostReachable("www.seznam.cz", 10000)
+        Log.d("PhilipsTest", "Host reachable: $host")
+
+        // 1. Create a DataSource.Factory
+        val httpDataSourceFactory: HttpDataSource.Factory = DefaultHttpDataSource.Factory()
+            .setUserAgent("YourUserAgent")
+
+        // 2. Build the DefaultDataSourceFactory
+        val dataSourceFactory = DefaultDataSourceFactory(context, httpDataSourceFactory)
+
+        // 3. Create a MediaSource
+        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+            .createMediaSource(MediaItem.fromUri("http://10.40.196.82:8080/bysid/402"))
+
+        // 4. Create and configure ExoPlayer
+        player = ExoPlayer.Builder(context).build()
+        player?.setMediaSource(mediaSource)
+        player?.prepare()
+        player?.play()
+
+        // 5. Notify video available
+        notifyVideoAvailable()
+
+        return true
+    }
+
     override fun onSetSurface(surface: Surface?): Boolean {
         Log.d("PhilipsTest", "Surface set: $surface")
-        return false
+        if (surface != null) {
+            player?.setVideoSurface(surface)
+            return true
+        } else {
+            player?.clearVideoSurface()
+            return false
+        }
     }
 
     override fun onRelease() {
         Log.d("PhilipsTest", "Session released")
+        player?.release()
+        player = null
     }
 
     override fun onSetStreamVolume(volume: Float) {
         Log.d("PhilipsTest", "Stream volume set to: $volume")
-    }
-
-    override fun onTune(channelUri: Uri): Boolean {
-        val frequency = channelUri.getQueryParameter("frequency")?.toIntOrNull()
-        if (frequency != null) {
-            // Tune to the specified frequency (implementation depends on tuner access)
-            tuneToFrequency(frequency)
-            notifyVideoAvailable()
-            return true
-        }
-
-        return false
+        player?.volume = volume
     }
 
     override fun onSetCaptionEnabled(enabled: Boolean) {
-        Log.d("PhilipsTest", "Captions enabled: $enabled")
+        Log.d("PhilipsTest", "Caption enabled: $enabled")
+        // Handle caption settings for ExoPlayer if needed
     }
 
-    private fun tuneToFrequency(frequency: Int) {
-        Log.d("PhilipsTest", "Tuning to frequency 2: $frequency")
+    private fun isHostReachable(host: String, timeout: Int): Boolean {
+        return try {
+            InetAddress.getByName(host).isReachable(timeout)
+        } catch (e: Exception) {
+            false
+        }
     }
 }
