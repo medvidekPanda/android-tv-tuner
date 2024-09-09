@@ -1,7 +1,6 @@
 package net.fogll.philips_control
 
 import android.content.Context
-import android.media.tv.TvInputManager
 import android.net.Uri
 import android.util.Log
 import android.view.Surface
@@ -9,12 +8,11 @@ import android.media.tv.TvInputService.Session
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.media3.datasource.DefaultDataSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.HttpDataSource
-import java.net.InetAddress
 
 class MySession(private val context: Context) : Session(context) {
     private var player: ExoPlayer? = null
@@ -23,15 +21,12 @@ class MySession(private val context: Context) : Session(context) {
     override fun onTune(channelUri: Uri?): Boolean {
         Log.d("PhilipsTest", "Tuning to: $channelUri")
 
-        val host = isHostReachable("www.seznam.cz", 10000)
-        Log.d("PhilipsTest", "Host reachable: $host")
-
         // 1. Create a DataSource.Factory
         val httpDataSourceFactory: HttpDataSource.Factory = DefaultHttpDataSource.Factory()
             .setUserAgent("YourUserAgent")
 
         // 2. Build the DefaultDataSourceFactory
-        val dataSourceFactory = DefaultDataSourceFactory(context, httpDataSourceFactory)
+        val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
 
         // 3. Create a MediaSource
         val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
@@ -75,13 +70,5 @@ class MySession(private val context: Context) : Session(context) {
     override fun onSetCaptionEnabled(enabled: Boolean) {
         Log.d("PhilipsTest", "Caption enabled: $enabled")
         // Handle caption settings for ExoPlayer if needed
-    }
-
-    private fun isHostReachable(host: String, timeout: Int): Boolean {
-        return try {
-            InetAddress.getByName(host).isReachable(timeout)
-        } catch (e: Exception) {
-            false
-        }
     }
 }
