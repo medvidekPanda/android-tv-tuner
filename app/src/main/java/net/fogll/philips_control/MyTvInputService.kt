@@ -26,9 +26,9 @@ class MyTvInputService : TvInputService() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
         val tvInputId = getTvInputId()
-        if (tvInputId == null) {
-            Log.d("PhilipsTest", "HW input not found")
-        }
+//        if (tvInputId == null) {
+//            Log.d("PhilipsTest", "HW input not found")
+//        }
         onCreateSession(tvInputId ?: "defaultInputId")
         Log.d("PhilipsTest", "Session created $session")
     }

@@ -1,30 +1,21 @@
 package net.fogll.philips_control
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
-import android.content.ComponentName
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.media.tv.TvContract
 import android.media.tv.TvInputInfo
 import android.media.tv.TvInputManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
-import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
-import androidx.tvprovider.media.tv.Channel
-import androidx.tvprovider.media.tv.PreviewProgram
-import androidx.tvprovider.media.tv.TvContractCompat
+
 
 class EntryActivity : AppCompatActivity() {
     private var myTvInputService: MyTvInputService? = null
@@ -35,26 +26,24 @@ class EntryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_entry)
 
 //        addDvbChannel(
-//            "CT 2",
+//            "CT 2 test",
 //            274000000,
-//            101,
-//            "com.mediatek.tvinput/.dtv.TunerInputService/HW0",
-//            1,
-//            this
+//            102,
+////            "com.mediatek.tvinput/.dtv.TunerInputService/HW0",
+//            "dummy_input",
 //        )
 
-        //addDvbChannel2("CT 1")
-        //addSurfaceView()
-        listChannels(this)
+        //startService()
+        contentResolver.notifyChange(TvContract.Channels.CONTENT_URI, null)
+        listChannels(this, "dummy_input")
 
-        val channelId = ContentUris.parseId("content://android.media.tv/channel/24".toUri())
-
-        Log.d("PhilipsTest", "Channel ID: $channelId")
-
-        val channelUri = TvContract.buildChannelUri(channelId)
-        val intent = Intent(Intent.ACTION_VIEW, channelUri)
-        intent.setPackage("com.android.tv")
-        startActivity(intent)
+//        val channelId = ContentUris.parseId("content://android.media.tv/channel/1".toUri())
+//        Log.d("PhilipsTest", "Channel ID: $channelId")
+//
+//        val channelUri = TvContract.buildChannelUri(channelId)
+//        val intent = Intent(Intent.ACTION_VIEW, channelUri)
+//        intent.setPackage("com.android.tv")
+//        startActivity(intent)
     }
 
 
@@ -63,8 +52,6 @@ class EntryActivity : AppCompatActivity() {
         frequency: Int,
         serviceId: Int,
         inputId: String,
-        channelId: Long,
-        context: Context
     ) {
 
 
@@ -79,29 +66,21 @@ class EntryActivity : AppCompatActivity() {
             put(TvContract.Channels.COLUMN_DISPLAY_NUMBER, serviceId)
             put(TvContract.Channels.COLUMN_VIDEO_FORMAT, TvContract.Channels.VIDEO_FORMAT_1080I)
             put(TvContract.Channels.COLUMN_DESCRIPTION, "Channel Description")
-            put(TvContract.Channels.COLUMN_TYPE, TvContract.Channels.TYPE_PREVIEW)
-            put(TvContract.Channels.COLUMN_APP_LINK_INTENT_URI, createAppLinkIntentUri(context))
+            //put(TvContract.Channels.COLUMN_APP_LINK_INTENT_URI, createAppLinkIntentUri(context))
         }
 
         val newChannelUri = contentResolver.insert(TvContract.Channels.CONTENT_URI, values)
+        //contentResolver.notifyChange(TvContract.Channels.CONTENT_URI, null)
+        contentResolver.notifyChange(newChannelUri!!, null)
         Log.d("PhilipsTest", "Channel added: $newChannelUri")
-
-
-        //val channelUri = TvContract.buildChannelUri(channelId)
-//        // Use channelUri to update the newly added channel
-//        val updateValues = ContentValues().apply {
-//            put(TvContract.Channels.COLUMN_DISPLAY_NUMBER, "100")
-//        }
-//        val rowsUpdated = contentResolver.update(channelUri, updateValues, null, null)
-//        Log.d("PhilipsTest", "Rows updated: $rowsUpdated")
     }
 
-    private fun listChannels(context: Context) {
+    private fun listChannels(context: Context, inputId: String) {
         val contentResolver = context.contentResolver
         //val channelsUri: Uri = TvContract.Channels.CONTENT_URI
         val channelsUri: Uri =
             TvContract.buildChannelsUriForInput(
-                "com.mediatek.tvinput/.dtv.TunerInputService/HW0"
+                inputId
             )
 
         val projection = arrayOf(
@@ -153,35 +132,17 @@ class EntryActivity : AppCompatActivity() {
         channelListTextView.text = result
     }
 
-    private fun tuneChannel(channelUri: Uri) {
-        myTvInputService?.getSession()?.onTune(channelUri)
-    }
+//    private fun startService(surface: Surface) {
+//        Log.d("PhilipsTest", "Permission granted. Start service")
+//        val intent = Intent(this, MyTvInputService::class.java)
+//        intent.putExtra("surface", surface)
+//        startService(intent)
+//    }
 
-    private fun addSurfaceView() {
-        val surfaceView: SurfaceView = findViewById(R.id.surfaceView)
-
-        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                startService(holder.surface)
-            }
-
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-            }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {}
-        })
-    }
-
-    private fun startService(surface: Surface) {
+    private fun startService() {
         Log.d("PhilipsTest", "Permission granted. Start service")
-        //val intent = Intent(this, MyTvInputService::class.java)
-        //intent.putExtra("surface", surface)
-        // startService(intent)
+        val intent = Intent(this, MyTvInputService::class.java)
+        startService(intent)
     }
 
     private fun findInputId(context: Context): String? {
@@ -210,71 +171,6 @@ class EntryActivity : AppCompatActivity() {
         stackBuilder.addNextIntentWithParentStack(intent)
         val pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         return pendingIntent?.intentSender?.toString() ?: ""
-    }
-
-    private fun addDvbChannel2(channelName: String) {
-        val builder = Channel.Builder()
-
-        builder
-            .setType(TvContractCompat.Channels.TYPE_PREVIEW)
-            .setDisplayName(channelName)
-
-        try {
-            val contentValues = builder.build().toContentValues()
-            Log.d("PhilipsTest", "ContentValues: $contentValues")
-
-            val channelUri = contentResolver.insert(
-                TvContract.PreviewPrograms.CONTENT_URI, contentValues
-            )
-
-            Log.d("PhilipsTest", "channelUri: $channelUri")
-
-            if (channelUri == null) {
-                Log.e("PhilipsTest", "Failed to insert channel")
-                return
-            }
-
-            val newChannelId = ContentUris.parseId(channelUri)
-            Log.d("PhilipsTest", "New channel ID: $newChannelId")
-            addProgram(newChannelId, "appProgramId")
-        } catch (e: Exception) {
-            Log.e("PhilipsTest", "Error inserting channel", e)
-        }
-    }
-
-    @SuppressLint("RestrictedApi")
-    private fun addProgram(channelId: Long, appProgramId: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"))
-        val intentUri = intent.toUri(Intent.URI_INTENT_SCHEME).toUri()
-
-        Log.d("PhilipsTest", "Adding program $channelId $appProgramId $intentUri")
-
-        val builder = PreviewProgram.Builder()
-        builder.setChannelId(channelId)
-            .setType(TvContractCompat.PreviewPrograms.TYPE_CLIP)
-            .setTitle("Title")
-            .setDescription("Program description")
-            .setPosterArtUri(intentUri)
-            .setIntentUri(intentUri)
-            .setInternalProviderId(appProgramId)
-
-        try {
-            val contentValues = builder.build().toContentValues()
-            Log.d("PhilipsTest", "ContentValues: $contentValues")
-
-            val programUri = contentResolver.insert(
-                TvContractCompat.PreviewPrograms.CONTENT_URI,
-                contentValues
-            )
-
-            if (programUri == null) {
-                Log.e("PhilipsTest", "Failed to insert program")
-            } else {
-                Log.d("PhilipsTest", "programUri: $programUri")
-            }
-        } catch (e: Exception) {
-            Log.e("PhilipsTest", "Error inserting program", e)
-        }
     }
 }
 

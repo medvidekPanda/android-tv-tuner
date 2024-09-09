@@ -22,51 +22,53 @@ class MySession(private val context: Context) : Session(context) {
     override fun onTune(channelUri: Uri?): Boolean {
         Log.d("PhilipsTest", "Tuning to: $channelUri")
 
-        if (channelUri == null) {
-            Log.e("PhilipsTest", "Channel URI is null")
-            return false
-        }
-
-        // 1. Create a DataSource.Factory
-        //val httpDataSourceFactory: HttpDataSource.Factory = DefaultHttpDataSource.Factory()
-        //    .setUserAgent("YourUserAgent")
-
-        // 2. Build the DefaultDataSourceFactory
-        //val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
-
-        // 3. Create a MediaSource
-//        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-//            .createMediaSource(MediaItem.fromUri("http://10.40.196.82:8080/bysid/402"))
-
-        // 1. Create a DataSource.Factory
-        val contentDataSourceFactory = DefaultDataSource.Factory(context)
-
-        // 2. Create a MediaSource
-        val mediaSource = ProgressiveMediaSource.Factory(contentDataSourceFactory)
-            .createMediaSource(MediaItem.fromUri(channelUri))
-
-        // 3. Create and configure ExoPlayer
-        player = ExoPlayer.Builder(context).build()
-        player?.setMediaSource(mediaSource)
+//        if (channelUri == null) {
+//            Log.e("PhilipsTest", "Channel URI is null")
+//            return false
+//        }
+//
+//        // 1. Create a DataSource.Factory
+//        //val httpDataSourceFactory: HttpDataSource.Factory = DefaultHttpDataSource.Factory()
+//        //    .setUserAgent("YourUserAgent")
+//
+//        // 2. Build the DefaultDataSourceFactory
+//        //val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
+//
+//        // 3. Create a MediaSource
+////        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+////            .createMediaSource(MediaItem.fromUri("http://10.40.196.82:8080/bysid/402"))
+//
+//        // 1. Create a DataSource.Factory
+//        val contentDataSourceFactory = DefaultDataSource.Factory(context)
+//
+//        // 2. Create a MediaSource
+//        val mediaSource = ProgressiveMediaSource.Factory(contentDataSourceFactory)
+//            .createMediaSource(MediaItem.fromUri(channelUri))
+//
+//        // 3. Create and configure ExoPlayer
+//        player = ExoPlayer.Builder(context).build()
+//        player?.setMediaSource(mediaSource)
 
         return true
     }
 
     override fun onSetSurface(surface: Surface?): Boolean {
         Log.d("PhilipsTest", "Surface set: $surface")
-        if (surface != null) {
-            player?.setVideoSurface(surface)
+//        if (surface != null) {
+//            player?.setVideoSurface(surface)
+//
+//            // Prepare and play after surface is set
+//            player?.prepare()
+//            player?.play()
+//
+//            notifyVideoAvailable()
+//            return true
+//        } else {
+//            player?.clearVideoSurface()
+//            return false
+//        }
 
-            // Prepare and play after surface is set
-            player?.prepare()
-            player?.play()
-
-            notifyVideoAvailable()
-            return true
-        } else {
-            player?.clearVideoSurface()
-            return false
-        }
+        return true
     }
 
     override fun onRelease() {
@@ -77,7 +79,7 @@ class MySession(private val context: Context) : Session(context) {
 
     override fun onSetStreamVolume(volume: Float) {
         Log.d("PhilipsTest", "Stream volume set to: $volume")
-        player?.volume = volume
+        //player?.volume = volume
     }
 
     override fun onSetCaptionEnabled(enabled: Boolean) {
