@@ -4,26 +4,17 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.media.MediaPlayer
-import android.media.tv.TvContract
 import android.media.tv.TvInputManager
 import android.media.tv.TvInputService
 import android.net.Uri
-import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.view.Surface
 import androidx.core.net.toUri
-import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.cast.framework.CastContext
-import kotlinx.coroutines.delay
-
 
 class MyTvInputService : TvInputService() {
     private var session: MySession? = null
@@ -34,17 +25,14 @@ class MyTvInputService : TvInputService() {
         super.onCreate()
         Log.d("PhilipsTest", "MyTvInputService created")
 
-
         val tvInputId = getTvInputId()
         if (tvInputId == null) {
             Log.d("PhilipsTest", "HW input not found")
-            //return
         }
 
         onCreateSession("tvInputId")
         Log.d("PhilipsTest", "Session created $session")
         session?.onTune("content://android.media.tv/channel/2956".toUri())
-
 
         val contentResolver = contentResolver
         val channelUri = Uri.parse("content://android.media.tv/channel/2956")
@@ -69,6 +57,7 @@ class MyTvInputService : TvInputService() {
     override fun onCreateSession(inputId: String): Session {
         Log.d("PhilipsTest", "Creating session for input: $inputId")
         session = MySession(this)
+        playbackSurface?.let { session?.onSetSurface(it) }
         return session!!
     }
 
@@ -80,6 +69,10 @@ class MyTvInputService : TvInputService() {
                 .setContentText("Service is running in the foreground").build()
 
         startForeground(NOTIFICATION_ID, notification)
+
+        playbackSurface = intent?.getParcelableExtra("surface")
+        playbackSurface?.let { session?.onSetSurface(it) }
+
         return START_STICKY
     }
 
@@ -99,6 +92,10 @@ class MyTvInputService : TvInputService() {
 
     fun onReleaseSession(session: Session) {
         Log.d("PhilipsTest", "Releasing session")
+        if (this.session === session) {
+            this.session?.onRelease() // Ensure session is released
+            this.session = null
+        }
     }
 
     fun getSession(): MySession? {

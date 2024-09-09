@@ -16,7 +16,6 @@ import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.HttpDataSource
 import java.net.InetAddress
 
-
 class MySession(private val context: Context) : Session(context) {
     private var player: ExoPlayer? = null
 
@@ -41,11 +40,6 @@ class MySession(private val context: Context) : Session(context) {
         // 4. Create and configure ExoPlayer
         player = ExoPlayer.Builder(context).build()
         player?.setMediaSource(mediaSource)
-        player?.prepare()
-        player?.play()
-
-        // 5. Notify video available
-        notifyVideoAvailable()
 
         return true
     }
@@ -54,6 +48,12 @@ class MySession(private val context: Context) : Session(context) {
         Log.d("PhilipsTest", "Surface set: $surface")
         if (surface != null) {
             player?.setVideoSurface(surface)
+
+            // Prepare and play after surface is set
+            player?.prepare()
+            player?.play()
+
+            notifyVideoAvailable()
             return true
         } else {
             player?.clearVideoSurface()
